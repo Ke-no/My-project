@@ -1,84 +1,55 @@
-using UnityEngine;
+using System; // Import standard .NET system types (not strictly needed here but common in C# files)
+using UnityEngine; // Import Unity-specific classes like MonoBehaviour, GameObject, Collider, and print
 
 public class PlayerScript : MonoBehaviour
 {
 
-    GameObject currentCollectible;
-    
-    int collCount = 0;
+    GameObject currentCollectible; // Store the collectible object the player is currently able to interact with
 
-    public float collectDistance = 3.0f;
+    int playerScore = 0; // Keep track of how many points the player has collected so far
 
-    void Update()
+    [SerializeField]
+    int targetScore = 0; // The goal score required to complete a task, editable from the Unity Inspector
+
+    void OnInteract() // Custom interaction method called when the player performs an interact action
     {
-        FindNearbyCollectible();
-    }
-
-    void FindNearbyCollectible()
-    {
-        currentCollectible = null;
-
-        Collider[] nearby = Physics.OverlapSphere(transform.position, collectDistance);
-
-        float closestDistance = Mathf.Infinity;
-        
-        foreach (Collider col in nearby)
+        if(currentCollectible != null) // Only collect something if the player is currently near a collectible
         {
-            if (col.CompareTag("Collectible"))
+            CollectibleScript collScript = currentCollectible.GetComponentInParent<CollectibleScript>(); // Find the collectible script on the collectible object or its parents
+            if(collScript == null) // Check if the collectible script was found successfully
             {
-                Vector3 directionToObject = (col.transform.position - transform.position).normalized;
-
-                float dot = Vector3.Dot(transform.forward, directionToObject);
-                
-                if (dot > 0.5f)
-                {
-                    float distance = Vector3.Distance(transform.position, col.transform.position);
-
-                    if (distance < closestDistance)
-                    {
-                        closestDistance = distance;
-                        currentCollectible = col.gameObject;
-                    }
-                }
+                print("Error: No CollectibleScript found on " + currentCollectible.name); // Log an error in the Unity Console if the collectible is missing its data component
+                return; // Exit the method early because we cannot safely collect the item without the script
+            }
+            else
+            {
+                playerScore += collScript.collectibleScore; // Add the collectible's score value to the player's total score
+                print("Player has collected " + playerScore + " points"); // Print the updated score to the console for debugging or feedback
+                Destroy(currentCollectible); // Remove the collectible object from the scene after it has been collected
+                currentCollectible = null; // Clear the reference so the player no longer has an active collectible selected
             }
         }
     }
 
-    void OnInteract()
+    void OnTriggerEnter(Collider other) // Unity event called when another collider enters this GameObject's trigger collider
     {
-        if(currentCollectible != null)
+        if(other.gameObject.tag == "Collectible") // Check if the object entering the trigger is tagged as a collectible
         {
-            Collectibles collectibleScript =
-                currentCollectible.GetComponent<Collectibles>();
-                
-            if (currentCollectible != null)
-            {
-                collCount += collectibleScript.score;
+            currentCollectible = other.GetComponentInParent<CollectibleScript>().gameObject; // Store the collectible GameObject so the player can interact with it later
+        }
 
-                print("Player get " + collectibleScript.score + " point");
-                print("Player now has " + collCount + " point");
-                }
-            //collCount++;
-            //print("Player has collected " + collCount + " collectibles");
-                Destroy(currentCollectible);
-                currentCollectible = null;
+        if(other.gameObject.tag == "GoalArea" && playerScore >= targetScore) // Check if the player entered the goal area and has enough points
+        {
+            print("Player entered trigger zone with " + playerScore + " points"); // Print a success message when the player reaches the goal with enough score
         }
     }
-    
-    // Update is called once per frame
-    void OnTriggerEnter(Collider other)
+
+    void OnTriggerExit(Collider other) // Unity event called when another collider leaves this GameObject's trigger collider
     {
-        if(other.gameObject.tag == "GoalArea" && collCount >= 7)
-    {
-        print("Player entered trigger zone with " + collCount + " point");
-    }
+        if(other.gameObject == currentCollectible) // If the collectible leaving the trigger is the one we were tracking
+        {
+            currentCollectible = null; // Clear the current collectible because it is no longer in range
+        }
     }
 
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, collectDistance);
-    }
 }
-
-

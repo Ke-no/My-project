@@ -6,6 +6,8 @@ public class PlayerScript : MonoBehaviour
 
     GameObject currentCollectible; // Store the collectible object the player is currently able to interact with
     GameObject currentDoor;
+    GameObject currentGiftbox;
+    GameObject currentBall;
 
     int playerScore = 0; // Keep track of how many points the player has collected so far
 
@@ -36,6 +38,16 @@ void OnInteract()
         }
     }
 
+    if(currentBall != null)
+    {
+        BallScript ballScript = currentBall.GetComponent<BallScript>();
+
+        if(ballScript != null)
+        {
+            ballScript.Interact(transform);
+        }
+    }
+
     // Doors
     if(currentDoor != null)
     {
@@ -46,6 +58,18 @@ void OnInteract()
             doorScript.Interact();
         }
     }
+
+    // Giftbox
+    if(currentGiftbox != null)
+        {
+            Giftbox giftbox = currentGiftbox.GetComponent<Giftbox>();
+
+            if(giftbox != null)
+            {
+                giftbox.Interact();
+                currentGiftbox = null;
+            }
+        }
 }
 
     void OnTriggerEnter(Collider other) // Unity event called when another collider enters this GameObject's trigger collider
@@ -64,6 +88,17 @@ void OnInteract()
         {
             currentDoor = other.GetComponentInParent<DoorScript>()?.gameObject;
         }
+
+        if(other.CompareTag("Giftbox"))
+        {
+            currentGiftbox = other.GetComponent<Giftbox>().gameObject;
+        }
+
+        if(other.CompareTag("Ball"))
+        {
+            currentBall = other.gameObject;
+        }
+
     }
 
     void OnTriggerExit(Collider other) // Unity event called when another collider leaves this GameObject's trigger collider
@@ -75,6 +110,14 @@ void OnInteract()
         if(other.gameObject == currentDoor)
         {
             currentDoor = null;
+        }
+        if(other.gameObject == currentGiftbox)
+        {
+            currentGiftbox = null;
+        }
+        if(other.gameObject == currentBall)
+        {
+            currentBall = null;
         }
     }
 

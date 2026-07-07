@@ -8,6 +8,8 @@ TagManager:
   - GoalArea
   - Collectible
   - Door
+  - Giftbox
+  - Ball
   layers:
   - Default
   - TransparentFX

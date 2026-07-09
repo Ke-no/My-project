@@ -3,7 +3,7 @@ using UnityEngine;
 public class BallScript : MonoBehaviour
 {
     [SerializeField]
-    private float kickForce = 10f;
+    private float kickForce = 5f;
     private Rigidbody rb;
     private void Awake()
     {

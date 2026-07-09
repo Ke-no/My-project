@@ -2,13 +2,26 @@ using UnityEngine;
 
 public class Giftbox : MonoBehaviour
 {
-    public GameObject collectiblePrefab;
+    public GameObject ballPrefab;
+
+    private int interactCount = 0;
     public void Interact()
     {
-        if (collectiblePrefab != null)
+        interactCount++;
+
+        Debug.Log("Interacted" + interactCount + "times(s)");
+
+        if (interactCount >= 3)
         {
-        Instantiate(collectiblePrefab, transform.position, Quaternion.identity);
+            if (ballPrefab != null)
+            {
+                Instantiate(ballPrefab, transform.position, Quaternion.identity);
+            }
+            Destroy(gameObject);
         }
-        Destroy(gameObject);
+        //if (collectiblePrefab != null)
+        //{
+        //Instantiate(collectiblePrefab, transform.position, Quaternion.identity);
+        //}
     }
 }

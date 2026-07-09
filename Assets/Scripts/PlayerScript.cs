@@ -67,7 +67,6 @@ void OnInteract()
             if(giftbox != null)
             {
                 giftbox.Interact();
-                currentGiftbox = null;
             }
         }
 }

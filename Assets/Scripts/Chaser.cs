@@ -5,19 +5,53 @@ public class Chaser : MonoBehaviour
 {
     
     [SerializeField]
-    private Transform targetToChase;
-    private NavMeshAgent navMeshAgent;
+    private Transform player;
+
+    [SerializeField]
+    private float visionRange = 10f;
+
+    private NavMeshAgent agent;
+    private Vector3 startPosition;
+    private bool isChasing = false;
 
     void Start()
     {
-        navMeshAgent = GetComponent<NavMeshAgent>(); 
+        agent = GetComponent<NavMeshAgent>();
+        startPosition = transform.position;
     }
 
     void Update()
     {
-        if(navMeshAgent != null && targetToChase != null)
+        if (player == null)
+        return;
+
+        float distance = Vector3.Distance(transform.position, player.position);
+
+        // Detect player
+        if (distance <= visionRange)
         {
-            navMeshAgent.SetDestination(targetToChase.position);
+            isChasing = true;
+        }
+        else
+        {
+            isChasing = false;
+        }
+
+        // Chase or return
+        if (isChasing)
+        {
+            agent.SetDestination(player.position);
+        }
+        else
+        {
+            agent.SetDestination(startPosition);
         }
     }
+
+    // Draw range in Scene
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, visionRange);
+    }   
 }
